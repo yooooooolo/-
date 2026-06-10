@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>玄龟卜易 · 六爻纳甲</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body {
+            background-color: #1a1410;
+            background-image: 
+                repeating-linear-gradient(0deg, rgba(210,160,90,0.12) 0px, rgba(210,160,90,0.12) 1px, transparent 1px, transparent 60px),
+                repeating-linear-gradient(60deg, rgba(210,160,90,0.08) 0px, rgba(210,160,90,0.08) 1px, transparent 1px, transparent 60px),
+                repeating-linear-gradient(-60deg, rgba(210,160,90,0.08) 0px, rgba(210,160,90,0.08) 1px, transparent 1px, transparent 60px),
+                radial-gradient(circle at 15% 20%, rgba(180,120,50,0.2) 1px, transparent 1px),
+                radial-gradient(circle at 85% 70%, rgba(180,120,50,0.2) 1px, transparent 1px);
+            background-size: 70px 70px, 120px 120px, 120px 120px, 40px 40px, 50px 50px;
+            font-family: 'Segoe UI', 'Noto Serif SC', '华文楷书', 'Microsoft YaHei', serif;
+            padding: 1.2rem;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #d9c8a9;
+        }
+        .yi-container {
+            max-width: 760px;
+            width: 100%;
+            margin: 1rem auto;
+            background: rgba(30, 24, 20, 0.65);
+            backdrop-filter: blur(1px);
+            border-radius: 24px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(200,160,100,0.3);
+            overflow: hidden;
+            position: relative;
+        }
+        .corner-decoration {
+            position: absolute;
+            width: 50px; height: 50px;
+            border-style: solid;
+            border-color: #c9aa5f;
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .corner-tl { top: 10px; left: 10px; border-width: 2px 0 0 2px; }
+        .corner-tr { top: 10px; right: 10px; border-width: 2px 2px 0 0; }
+        .corner-bl { bottom: 10px; left: 10px; border-width: 0 0 2px 2px; }
+        .corner-br { bottom: 10px; right: 10px; border-width: 0 2px 2px 0; }
+        .header {
+            background: rgba(20,16,12,0.8);
+            padding: 1rem 1.5rem;
+            text-align: center;
+            border-bottom: 2px solid #c9aa5f;
+        }
+        .header h1 { font-size: 1.9rem; letter-spacing: 8px; color: #eedba7; text-shadow: 2px 2px 0 #1a130c; }
+        .header p { font-size: 0.7rem; color: #c9aa6f; letter-spacing: 2px; }
+        .question-area { padding: 1rem 1.5rem 0.5rem; background: rgba(0,0,0,0.2); }
+        .question-label { font-size: 0.8rem; font-weight: 600; color: #e6cfa0; }
+        .question-input {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: #fef7e8;
+            border: 1px solid #bc9468;
+            border-radius: 40px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: #2c2418;
+            outline: none;
+        }
+        .question-input:focus { border-color: #e6bc7e; box-shadow: 0 0 0 2px rgba(230,188,126,0.3); }
+        .yao-area { padding: 0.8rem 1.5rem 1.2rem; text-align: center; }
+        .btn-yao {
+            background: #5c3f1f;
+            border: 2px solid #e6bc7e;
+            width: 70%;
+            padding: 0.9rem 0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #fbeab6;
+            border-radius: 60px;
+            cursor: pointer;
+            font-family: inherit;
+            letter-spacing: 6px;
+            box-shadow: 0 4px 0 #2d1f12;
+            transition: 0.05s linear;
+        }
+        .btn-yao:active { transform: translateY(2px); box-shadow: 0 1px 0 #2d1f12; }
+        .progress-tip { text-align: center; margin-top: 0.8rem; font-size: 0.85rem; color: #e6bc7e; }
+        .result-panel { padding: 1.2rem 1.5rem 2rem; }
+        .gua-card {
+            background: rgba(35,28,22,0.85);
+            backdrop-filter: blur(2px);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            padding: 1rem 1.2rem;
+            border-left: 4px solid #c9aa5f;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .gua-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            color: #f3deba;
+            border-bottom: 1px solid #c9aa5f;
+            padding-bottom: 0.3rem;
+            margin-bottom: 0.5rem;
+        }
+        .yao-list { display: flex; flex-direction: column-reverse; gap: 0.5rem; }
+        .yao-item {
+            background: rgba(50,40,30,0.7);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.5rem 1rem;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            border: 1px solid #8b6b3e;
+            color: #f2e5cf;
+            flex-wrap: wrap;
+        }
+        .interpret-box {
+            background: rgba(50,40,30,0.85);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-top: 0.5rem;
+            color: #fef0da;
+            border: 1px solid #a67c42;
+            white-space: pre-line;
+            line-height: 1.5;
+        }
+        .user-question { font-weight: bold; color: #f7cf8c; border-left: 4px solid #c9aa5f; padding-left: 0.8rem; margin-bottom: 0.6rem; }
+        .btn-reset {
+            background: #7a5a32;
+            border: none;
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fef0cf;
+            margin-top: 1rem;
+            cursor: pointer;
+        }
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            padding: 0.8rem;
+            background: rgba(0,0,0,0.6);
+            color: #cbb67c;
+            border-top: 1px solid #5e3f1a;
+        }
+        @media (max-width: 550px) {
+            .yao-item { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+            .btn-yao { width: 90%; letter-spacing: 2px; }
+        }
+    </style>
+</head>
+<body>
+<div class="yi-container">
+    <div class="corner-decoration corner-tl"></div><div class="corner-decoration corner-tr"></div>
+    <div class="corner-decoration corner-bl"></div><div class="corner-decoration corner-br"></div>
+    <div class="header"><h1>䷭ 玄龟卜易 ䷭</h1><p>京房纳甲 · 龟甲契文 · 心诚感通</p></div>
+    <div class="question-area">
+        <div class="question-label">📜 叩问天机（写下您所问之事）</div>
+        <input type="text" class="question-input" id="questionInput" placeholder="例：周三面试结果如何？" value="周三面试结果如何？">
+    </div>
+    <div class="yao-area">
+        <button class="btn-yao" id="yaoBtn">⚡ 灼龟摇卦 ⚡</button>
+        <div class="progress-tip" id="progressTip">心诚则纹现 · 六爻龟甲裂</div>
+    </div>
+    <div class="result-panel" id="resultPanel"><div style="text-align:center; color:#c9aa6f;">待灼龟甲，观象知机</div></div>
+    <footer>⿅ 汉代龟卜遗法 · 六爻纳甲正统 ⿅ 盘龙护佑，问心无悔</footer>
+</div>
+
+<script>
+    // ======================= 六爻核心数据库 =======================
+    const GUA_NAMES = [
+        "乾为天","天风姤","天山遁","天地否","风地观","山地剥","火地晋","火天大有",
+        "兑为泽","泽水困","泽地萃","泽山咸","水山蹇","地山谦","雷山小过","雷泽归妹",
+        "离为火","火山旅","火风鼎","火水未济","山水蒙","风水涣","天水讼","天火同人",
+        "震为雷","雷地豫","雷水解","雷风恒","地风升","水风井","泽风大过","泽雷随",
+        "巽为风","风天小畜","风火家人","风雷益","天雷无妄","火雷噬嗑","山雷颐","山风蛊",
+        "坎为水","水泽节","水雷屯","水火既济","泽火革","雷火丰","地火明夷","地水师",
+        "艮为山","山火贲","山天大畜","山泽损","火泽睽","天泽履","风泽中孚","风山渐",
+        "坤为地","地雷复","地泽临","地天泰","雷天大壮","泽天夬","水天需","水地比"
+    ];
+    const GUA_SYMBOLS = [
+        "䷀","䷫","䷠","䷋","䷓","䷖","䷢","䷍","䷹","䷮","䷬","䷞","䷦","䷎","䷽","䷵",
+        "䷝","䷷","䷱","䷾","䷃","䷺","䷅","䷌","䷲","䷏","䷧","䷟","䷭","䷯","䷛","䷐",
+        "䷸","䷈","䷤","䷩","䷘","䷔","䷚","䷑","䷜","䷻","䷂","䷾","䷰","䷶","䷣","䷆",
+        "䷳","䷕","䷙","䷨","䷥","䷉","䷼","䷴","䷁","䷗","䷒","䷊","䷡","䷪","䷄","䷇"
+    ];
+    const GUA_GONG = [1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,5,5,5,5,5,5,5,5,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8];
+    const GUA_SHI = [0,0,1,2,3,4,3,2,0,1,2,3,4,3,2,2,0,1,2,3,4,3,2,2,0,1,2,3,4,3,2,2,0,1,2,3,4,3,2,2,0,1,2,3,4,3,2,2,0,1,2,3,4,3,2,2,0,1,2,3,4,3,2,2];
+    function getYing(shi){ return (shi+3)%6; }
+    const NA_JIA_ZHI = {1:["子","寅","辰","午","申","戌"],4:["子","寅","辰","午","申","戌"],6:["寅","辰","午","申","戌","子"],7:["辰","午","申","戌","子","寅"],8:["未","巳","卯","丑","亥","酉"],5:["丑","亥","酉","未","巳","卯"],3:["卯","丑","亥","酉","未","巳"],2:["巳","卯","丑","亥","酉","未"]};
+    function zhiWuXing(zhi){ if(["寅","卯"].includes(zhi)) return "木"; if(["巳","午"].includes(zhi)) return "火"; if(["申","酉"].includes(zhi)) return "金"; if(["亥","子"].includes(zhi)) return "水"; return "土"; }
+    const GONG_WUXING = {1:"金",2:"金",3:"火",4:"木",5:"木",6:"水",7:"土",8:"土"};
+    function getLiuQin(gongIndex, zhi){ const gongWx = GONG_WUXING[gongIndex]; const zhiWx = zhiWuXing(zhi); if(gongWx===zhiWx) return "兄弟"; if((gongWx==="金"&&zhiWx==="土")||(gongWx==="木"&&zhiWx==="水")||(gongWx==="水"&&zhiWx==="金")||(gongWx==="火"&&zhiWx==="木")||(gongWx==="土"&&zhiWx==="火")) return "父母"; if((gongWx==="金"&&zhiWx==="水")||(gongWx==="木"&&zhiWx==="火")||(gongWx==="水"&&zhiWx==="木")||(gongWx==="火"&&zhiWx==="土")||(gongWx==="土"&&zhiWx==="金")) return "子孙"; if((gongWx==="金"&&zhiWx==="火")||(gongWx==="木"&&zhiWx==="金")||(gongWx==="水"&&zhiWx==="土")||(gongWx==="火"&&zhiWx==="水")||(gongWx==="土"&&zhiWx==="木")) return "官鬼"; return "妻财"; }
+    function getGuaIndex(shang,xia){ return (shang-1)*8+(xia-1); }
+    function getLiuShenByDay(){ const now=new Date(); const dayIndex=Math.floor(now.getTime()/(1000*3600*24))%10; const stems=["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"]; const stem=stems[dayIndex]; let order=[]; if(stem==="甲"||stem==="乙") order=["青龙","朱雀","勾陈","螣蛇","白虎","玄武"]; else if(stem==="丙"||stem==="丁") order=["朱雀","勾陈","螣蛇","白虎","玄武","青龙"]; else if(stem==="戊") order=["勾陈","螣蛇","白虎","玄武","青龙","朱雀"]; else if(stem==="己") order=["螣蛇","白虎","玄武","青龙","朱雀","勾陈"]; else if(stem==="庚"||stem==="辛") order=["白虎","玄武","青龙","朱雀","勾陈","螣蛇"]; else order=["玄武","青龙","朱雀","勾陈","螣蛇","白虎"]; return {liuShenOrder:order, stem}; }
+    function shakeYao(){ let yaos=[]; for(let i=0;i<6;i++){ let coin=0; for(let c=0;c<3;c++) coin+=Math.random()<0.5?1:0; let type=""; if(coin===3) type="老阳"; else if(coin===0) type="老阴"; else if(coin===2) type="少阴"; else type="少阳"; yaos.push(type); } return yaos; }
+    function getGuaFromYao(yaos){ let benYin=[], bianYin=[]; for(let i=0;i<6;i++){ let y=yaos[i]; let benLine=(y==="少阳"||y==="老阳")?1:0; let bianLine=benLine; if(y==="老阳") bianLine=0; if(y==="老阴") bianLine=1; benYin.push(benLine); bianYin.push(bianLine); } let shangGuaBin=benYin[5]*4+benYin[4]*2+benYin[3]; let xiaGuaBin=benYin[2]*4+benYin[1]*2+benYin[0]; let shangGuaBian=bianYin[5]*4+bianYin[4]*2+bianYin[3]; let xiaGuaBian=bianYin[2]*4+bianYin[1]*2+bianYin[0]; const mapBin={7:"1",6:"2",5:"3",4:"4",3:"5",2:"6",1:"7",0:"8"}; let shangIdx=parseInt(mapBin[shangGuaBin]||"1"); let xiaIdx=parseInt(mapBin[xiaGuaBin]||"1"); let shangBianIdx=parseInt(mapBin[shangGuaBian]||"1"); let xiaBianIdx=parseInt(mapBin[xiaGuaBian]||"1"); return {benShang:shangIdx, benXia:xiaIdx, bianShang:shangBianIdx, bianXia:xiaBianIdx, yaos}; }
+    function getNazhiForGua(gong){ return [...(NA_JIA_ZHI[gong] || NA_JIA_ZHI[1])]; }
+    function fullDivination(yaos){ const guaRes=getGuaFromYao(yaos); const benIdx=getGuaIndex(guaRes.benShang, guaRes.benXia); const bianIdx=getGuaIndex(guaRes.bianShang, guaRes.bianXia); const benName=GUA_NAMES[benIdx]; const bianName=GUA_NAMES[bianIdx]; const benSymbol=GUA_SYMBOLS[benIdx]||"䷀"; const bianSymbol=GUA_SYMBOLS[bianIdx]||"䷁"; const gong=GUA_GONG[benIdx]; const shi=GUA_SHI[benIdx]; const ying=getYing(shi); const nazhiList=getNazhiForGua(gong); const {liuShenOrder, stem}=getLiuShenByDay(); let yaoDetails=[]; for(let i=0;i<6;i++){ const posName=["初爻","二爻","三爻","四爻","五爻","上爻"][i]; const lineType=yaos[i]; let lineSymbol=""; if(lineType==="少阳") lineSymbol="⚊  —"; else if(lineType==="少阴") lineSymbol="⚋  - -"; else if(lineType==="老阳") lineSymbol="⚊○ 老阳"; else lineSymbol="⚋× 老阴"; const zhi=nazhiList[i]; const liuqin=getLiuQin(gong, zhi); const liuShen=liuShenOrder[i]; const shiYing=(i===shi)?"世":((i===ying)?"应":""); yaoDetails.push({posName, lineType, lineSymbol, zhi, liuqin, liuShen, shiYing}); } const dongIndexes=[]; yaos.forEach((y,idx)=>{ if(y==="老阳"||y==="老阴") dongIndexes.push(idx+1); }); return {benName, bianName, benSymbol, bianSymbol, yaoDetails, dongIndexes, stem, gong, shi, ying, yaos}; }
+
+    // ======================= 详细的卦意库 =======================
+    const GUA_DETAILS = {
+        "震为雷": "震动惊惧，修省致福。雷声震荡，君子因此恐惧修省，反身自问。遇此卦者，事多突变，但若能沉着冷静，反能化险为安。",
+        "雷泽归妹": "归妹非正，待时嫁娶。原指婚嫁不当，引申为“位置错配”或“时机未熟”。若问工作，可能岗位与预期有偏差；若问感情，则对方心意未定，宜静候。",
+        "乾为天": "元亨利贞，刚健进取。天行健，君子以自强不息。此事须主动争取，不可坐等。",
+        "坤为地": "厚德载物，柔顺含章。地势坤，君子以厚德载物。宜包容、守静，以柔克刚。",
+        "水天需": "云上于天，需待时也。需卦主等待，不可冒进，诚信则吉。面试后耐心等待，结果会晚些到来。",
+        "天水讼": "天与水违行，讼卦主争。慎起争端，和解为贵。若问面试，可能遭遇激烈竞争，需据理力争但不失风度。",
+        "地天泰": "天地交泰，通泰无阻。小往大来，吉亨。面试顺利，结果喜人。",
+        "天地否": "天地不交，否塞不通。宜守正避凶，暂不宜强求。面试可能受阻，或岗位不合。",
+        "火天大有": "丰收满载，顺天应人。元亨。面试结果优异，甚至超出预期。",
+        "风泽中孚": "诚信感通，豚鱼吉也。中孚主信，若问复合，只要你真心反思，对方可能回头。",
+        "天泽履": "履虎尾，不咥人，亨。如履薄冰，谨慎则吉。面试有压力但能化险为夷。",
+        "山雷颐": "颐养修身，自食其力。贞吉。宜养精蓄锐，暂不冒进。",
+        "泽火革": "革故鼎新，改弦更张。面试后可能有岗位调整或二次机会。",
+        "雷火丰": "丰大光明，日中则昃。事情盛大但需防盛极而衰，得offer后勿骄。",
+        "地火明夷": "明夷于飞，垂翅敛芒。暂时隐忍，不宜出头。",
+        "风山渐": "循序渐进，进得位也。事情需逐步推进，不可急躁。",
+        "水地比": "亲比依附，众星拱月。得人相助，面试可能有内推或贵人。",
+        "泽水困": "困顿求通，致命遂志。暂时困难，但坚守正道可脱困。",
+        "山风蛊": "积弊革新，整治腐败。需彻底改变策略，不能按老套路。",
+        "雷风恒": "持之以恒，夫妇之道。此事需长期坚持，非一日之功。",
+        "火风鼎": "鼎立新命，除旧布新。新机会出现，可果断接纳。",
+        "水火既济": "事成防危，初吉终乱。事情虽成，后续需谨慎。",
+        "火水未济": "事未竟成，辨物居方。尚未完成，继续努力。"
+    };
+    function getDetailedGuaMeaning(guaName) {
+        return GUA_DETAILS[guaName] || `${guaName}，卦象已显，具体吉凶需结合动爻及所问之事综合判断。`;
+    }
+
+    // ======================= 通用场景解读（不穷举） =======================
+    function getDetailedInterpretation(question, benName, bianName, dongIndexes, benSymbol, bianSymbol, shi, ying, yaos) {
+        const benDetail = getDetailedGuaMeaning(benName);
+        const bianDetail = getDetailedGuaMeaning(bianName);
+        const dongCount = dongIndexes.length;
+        let dongDesc = "";
+        if (dongCount === 0) dongDesc = "此卦无动爻，事体安静，近期内不会有大的变化，宜守不宜攻，静待时机。";
+        else if (dongCount === 1) dongDesc = `一爻独动（第${dongIndexes[0]}爻），事之枢机在此。爻动则变，机会与风险并存，需重点关注此爻位置。`;
+        else if (dongCount <= 3) dongDesc = `${dongCount}爻发动，主事变化剧烈，多方牵动。此时不宜独断，宜集思广益。`;
+        else dongDesc = `${dongCount}爻乱动，主事反复无常，暂不宜决策，静观其变，待局面明朗再行动。`;
+        
+        let shiYingDesc = "";
+        const shiPos = shi + 1, yingPos = ying + 1;
+        if (shi === ying) shiYingDesc = "世应同爻，事有反复，自己即是关键。您的心态会直接影响结果。";
+        else if (shi < ying) shiYingDesc = `世爻在第${shiPos}位（内卦），应爻在第${yingPos}位（外卦），内因决定外果，您的自身准备比外部环境更重要。`;
+        else shiYingDesc = `世爻在第${shiPos}位（外卦），应爻在第${yingPos}位（内卦），外因大于内因，需多关注外界反馈。`;
+        
+        // ---------- 通用建议生成器（不依赖关键词穷举）----------
+        function extractTopic(q) {
+            let cleaned = q.replace(/[？?。，、？！!；;：:]/g, '');
+            let match = cleaned.match(/(?:是否|会不会|能不能|能否|何时|多久|有没有)(.*)/);
+            if (match) return match[1].trim() || "此事";
+            return cleaned.length > 12 ? cleaned.substring(0,12)+"…" : cleaned;
+        }
+        function getOmen(name) {
+            const bad = ["剥","否","困","蹇","损","明夷","讼","小过","未济","蛊"];
+            const good = ["泰","大有","既济","晋","升","谦","复","家人","中孚","同人"];
+            if (good.some(g=>name.includes(g))) return "吉";
+            if (bad.some(b=>name.includes(b))) return "凶";
+            return "平";
+        }
+        const topic = extractTopic(question);
+        const omen = getOmen(benName);
+        let specificAdvice = `问「${topic}」，卦象${omen==="吉"?"呈吉":(omen==="凶"?"示警":"平缓")}。${benDetail.split("。")[0]}。`;
+        if (dongCount === 0) specificAdvice += " 事体未发，宜守静。";
+        else if (dongCount === 1) specificAdvice += ` 动在${dongIndexes[0]}爻，机不可失。`;
+        else specificAdvice += ` 多爻变动，宜以稳制变。`;
+        if (shi < ying) specificAdvice += " 您自身的努力决定结局。";
+        else if (shi > ying) specificAdvice += " 留意外部条件变化。";
+        else specificAdvice += " 心转则事转。";
+        specificAdvice += ` 变卦${bianName}喻示最终走向：${bianDetail.split("。")[0]}。`;
+        // 增加一句总结性人话
+        if (omen === "吉") specificAdvice += " 总体向好，不必多虑。";
+        else if (omen === "凶") specificAdvice += " 宜审慎应对，不可轻进。";
+        else specificAdvice += " 顺其自然，莫强求。";
+        
+        // 最终整合
+        let final = `【本卦】${benName} ${benSymbol}\n${benDetail}\n\n【变卦】${bianName} ${bianSymbol}\n${bianDetail}\n\n【动爻】${dongDesc}\n\n【世应】${shiYingDesc}\n\n【针对您问「${question}」】\n${specificAdvice}\n\n📜 总结：${dongCount===0?"静守待时":(dongCount===1?"动而求进":"以静制动")}。`;
+        return final;
+    }
+
+    // 渲染UI
+    function renderResult(divination, question) {
+        const panel = document.getElementById("resultPanel");
+        if(!divination){ panel.innerHTML=`<div style="text-align:center; color:#c9aa6f;">待灼龟甲，观象知机</div>`; return; }
+        const {benName, bianName, benSymbol, bianSymbol, yaoDetails, dongIndexes, stem, shi, ying, yaos} = divination;
+        let yaoHtml = `<div class="gua-card"><div class="gua-title">🐉 本卦 · ${benName} ${benSymbol}</div><div class="yao-list">`;
+        for(let y of yaoDetails){
+            yaoHtml += `<div class="yao-item"><span>${y.posName}</span><span>${y.lineSymbol}</span><span>${y.zhi} · ${y.liuqin} · ${y.liuShen} ${y.shiYing?`· ${y.shiYing}`:''}</span></div>`;
+        }
+        yaoHtml += `</div><div style="font-size:0.7rem; margin-top:0.5rem;">🐚 日干${stem}起六神</div></div>`;
+        yaoHtml += `<div class="gua-card"><div class="gua-title">⿅ 变卦 · ${bianName} ${bianSymbol}</div><div>变卦示演化之机</div></div>`;
+        const interpretation = getDetailedInterpretation(question, benName, bianName, dongIndexes, benSymbol, bianSymbol, shi, ying, yaos);
+        yaoHtml += `<div class="interpret-box"><div class="user-question">❄️ 卜问：${escapeHtml(question)}</div><div style="white-space:pre-line;">${escapeHtml(interpretation)}</div></div>`;
+        yaoHtml += `<button class="btn-reset" id="resetBtn">🐉 再灼龟甲 重问天机 🐉</button>`;
+        panel.innerHTML = yaoHtml;
+        document.getElementById("resetBtn")?.addEventListener("click",()=>{ startShakeSequence(); });
+    }
+    function escapeHtml(str){ return str.replace(/[&<>]/g, function(m){ if(m==='&') return '&amp;'; if(m==='<') return '&lt;'; if(m==='>') return '&gt;'; return m;}); }
+    async function startShakeSequence(){
+        const tip = document.getElementById("progressTip");
+        const btn = document.getElementById("yaoBtn");
+        const qInput = document.getElementById("questionInput");
+        const question = qInput.value.trim();
+        if(!question){ tip.innerHTML="⚠️ 请先刻下所问之事 ⚠️"; setTimeout(()=>{ tip.innerHTML="心诚则纹现 · 六爻龟甲裂"; },1500); return; }
+        btn.disabled = true;
+        tip.innerHTML = "🐢 灼龟甲 · 观其纹 🐢";
+        for(let i=1;i<=6;i++){ tip.innerHTML = `⿅ 第 ${i} 爻 龟甲渐裂 ⿅`; await new Promise(r=>setTimeout(r,130)); }
+        const yaos = shakeYao();
+        const divination = fullDivination(yaos);
+        renderResult(divination, question);
+        btn.disabled = false;
+        tip.innerHTML = "点击铜钱，再卜一卦";
+    }
+    document.getElementById("yaoBtn").addEventListener("click", startShakeSequence);
+    renderResult(null, "");
+</script>
+</body>
+</html>
